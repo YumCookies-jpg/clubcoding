@@ -23,7 +23,7 @@ Status: `Proposed` (awaiting review) · `Approved` (implementation may start) ·
 
 | # | Title | Status | Owner | Description |
 |---|-------|--------|-------|-------------|
-| 0003 | [Flutter app shell & state conventions](0003-flutter-app-shell.md) | Proposed | MOB-A | `AP-005`; routing, Riverpod, config injection |
+| 0003 | [Flutter app shell & state conventions](0003-flutter-app-shell.md) | Implementing | MOB-A | `AP-005`; routing, Riverpod, config injection |
 | 0005 | UX flows & design tokens | Planned | QA | `AP-008`; report/map/alerts/verify flows |
 | 0006 | Auth & role model | Planned | MOB-A / BE | `AP-010`; OTP, profile bootstrap, role claim |
 | 0007 | 1-tap report flow | Planned | MOB-A | `AP-020`–`AP-021`; capture, compression, EXIF |

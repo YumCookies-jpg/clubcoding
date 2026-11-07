@@ -11,7 +11,7 @@ in [`design-log/`](../design-log/index.md); roles and rituals live in
 | Planned P0 effort | ~89 ideal person-days |
 | Capacity | ~120 usable person-days (see TEAM §Capacity) |
 | Current milestone | M1 — Foundation |
-| Last updated | 2026-10-31 |
+| Last updated | 2026-11-07 |
 
 ## How to use this backlog
 
@@ -72,7 +72,7 @@ in [`design-log/`](../design-log/index.md); roles and rituals live in
 | AP-002 | Supabase projects (local/staging), env matrix, region `ap-southeast-1` | BE | S | 1 | AP-001 | — | Todo |
 | AP-003 | PostGIS schema: `profiles`, `reports`, `hotspots`, `incidents`, `incident_evidence`, `verifications`, `notification_log` | BE | M | 2 | AP-002 | 0002 | Todo |
 | AP-004 | RLS policies + role model (warga/verifikator/admin), audit triggers | BE | M | 1.5 | AP-003 | 0002 | Todo |
-| AP-005 | Flutter shell: router, Riverpod, theme, flavors, error/result types | MOB-A | M | 2 | AP-001 | 0003 | Todo |
+| AP-005 | Flutter shell: router, Riverpod, theme, flavors, error/result types | MOB-A | M | 2 | AP-001 | 0003 | Review |
 | AP-006 | Admin shell: Vite + React + TS + Tailwind, Supabase client, query provider | WEB | S | 1.5 | AP-001 | 0004 | Todo |
 | AP-007 | CI gates: format, analyze, test (mobile), tsc + eslint (admin), branch protection | TL | S | 1 | AP-005, AP-006 | 0001 | Todo |
 | AP-008 | UX flows for report/map/alerts/verify + design tokens (color, type, spacing) | QA | M | 2.5 | AP-001 | 0005 | Todo |

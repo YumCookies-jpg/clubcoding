@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Proposed |
+| Status | Implementing (TL review on branch) |
 | Author | MOB-A — Sabil |
 | Task | `AP-005` (unblocks `AP-009`, `AP-010`, `AP-020`) |
 | Created | 2026-11-07 |
@@ -351,3 +351,77 @@ _Append only after implementation starts. Do not edit the sections above._
 
 - DL-0003 written from the template; no code generated (approval gate per DL-0001 D5).
 - Next: TL approval, then Phase 1 (`AP-005` scaffold) on branch `feat/AP-005-flutter-shell`.
+
+### 2026-11-07 — AP-005 implementation (Phases 1–3)
+
+Branch: `feat/AP-005-flutter-shell` (pushed to the `YumCookies-jpg` fork; PR
+`duaempatpct20/clubcoding#1`). Design sections above are frozen.
+
+**What shipped**
+
+- `apps/mobile` scaffold from `flutter create --empty --org id.clubcoding
+  --project-name apipantau --platforms android,ios`; template counter removed.
+- M1 dependencies only: `flutter_riverpod 3.5.0`, `go_router 18.1.3`,
+  `supabase_flutter 2.18.3`, `flutter_localizations` (SDK).
+- `core/config`: `AppEnv`, `AppConfig.fromEnvironment/fromValues`, `ConfigException`,
+  `configProvider`; URL/key/`APP_ENV` validation as designed.
+- `core/result`: sealed `Result<T>` (`Ok`/`Err`) and sealed `AppFailure`
+  (`NetworkFailure`, `AuthFailure`, `PermissionFailure`, `ValidationFailure`,
+  `ServerFailure`, `UnknownFailure`) with Indonesian messages.
+- `core/theme` (`AppTokens`, `AppTheme.light/dark`), `core/l10n/AppStrings`,
+  `core/widgets` (`AppLoadingView`, `AppErrorView`, `PlaceholderPage`, `SplashPage`).
+- `data/supabase`: `supabaseClientProvider` (throws until overridden) and
+  `mapException`; `data/auth`: `authStateProvider` + sealed `AuthState`.
+- `core/router`: all M1 routes, `/incident/:id` reserved but unregistered,
+  `refreshListenable` auth redirect, `errorBuilder` with return-to-map.
+- `app.dart` (`ApiPantauApp`, `ConfigErrorApp`), `main.dart` (config → Supabase →
+  `ProviderScope` overrides), six placeholder feature pages.
+- Android: `minSdk 26`, `INTERNET` permission, label `ApiPantau`; iOS display name
+  `ApiPantau`. `apps/mobile/README.md` documents run commands and gates.
+
+**Deviations from the frozen design (with reason)**
+
+1. **Implementation started before TL approval.** Sabil authorized local work; the TL
+   reviews the pushed branch instead of approving the log first. DL-0003 therefore moved
+   `Proposed → Implementing` without an `Approved` step. `Approved` remains the TL's call.
+2. **Auth state is a sealed `AuthState` (`AuthSignedIn`/`AuthSignedOut`), not `Session`.**
+   The router and boot tests must not require a live Supabase client. This keeps D1/Q8
+   intact and is the seam `AP-010` will build on.
+3. **Failure mapping keys on PostgREST SQL codes, not HTTP status.** `PostgrestException`
+   in `postgrest 2.9.1` exposes `code` but no HTTP status. Mapping used: `42501` → permission,
+   `PGRST301` → auth (`jwt_expired`), `22*`/`23*`/`PGRST116` → validation, otherwise server
+   (`ServerFailure(code)`). This is a more precise version of the design's 401/403/4xx/5xx
+   table; the UI contract is unchanged.
+4. **`Supabase.initialize` uses `publishableKey:`.** `anonKey:` is deprecated in
+   `supabase_flutter 2.18.3`. The environment variable stays `SUPABASE_ANON_KEY` because
+   that is the dashboard label and the contract in D4.
+5. **`kotlin.incremental=false` in `android/gradle.properties`.** The first debug build
+   failed in the Kotlin daemon closing incremental caches because the Pub cache is on `C:`
+   and the repo on `D:` (`this and base files have different roots`). The flag is a local/CI
+   reproducibility workaround, not an app-code change; remove it when the Kotlin cache
+   supports cross-drive roots.
+6. **Two extra tests beyond the plan.** `test/core/result/result_test.dart` and
+   `test/data/supabase/error_mapper_test.dart` were added so D5's command/error contract is
+   covered directly. `AppLoadingView`, `PlaceholderPage`, and `SplashPage` were split out of
+   `app_error_view.dart` for reuse; no new dependency.
+
+**Verification**
+
+| Criterion | Result |
+|---|---|
+| `flutter analyze` | ✅ `No issues found!` (11.3s) |
+| `dart format --set-exit-if-changed lib test` | ✅ 26 files checked, 0 changed |
+| `flutter test` | ✅ **20/20 passing** (boot 4, config 8, Result 2, error mapper 6) |
+| `flutter build apk --debug` | ✅ `build/app/outputs/flutter-apk/app-debug.apk` |
+| `String.fromEnvironment` only in config | ✅ only `lib/core/config/app_config.dart:45-47` |
+| `features/` imports only from router | ✅ only `lib/core/router/app_router.dart:6-11` |
+| No committed secret values | ✅ only `--dart-define` hint text; no `service_role` or key literal |
+| `flutter run` on a device/emulator | ⏳ not executed in this environment; widget tests cover the four boot states |
+
+**Follow-ups**
+
+- TL (Fikri) to review PR #1; on approval set DL-0003 `Approved`/`Done` and AP-005 `Done`.
+- `AP-010` will replace the login placeholder and may refine `AuthState` (role claim) in
+  DL-0006; no shell rewrite expected.
+- `AP-007` should adopt the four gates above; the cross-drive Kotlin workaround needs a
+  comment in CI if runners split Pub cache and workspace across drives.
